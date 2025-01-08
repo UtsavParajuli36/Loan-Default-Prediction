@@ -1,6 +1,6 @@
- model_deployment/
+model_deployment/
 
- .gitattributes
+.gitattributes
 
 data/processed.csv
 
