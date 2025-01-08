@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Prediction</title>
+</head>
+
+<body>
+    <h1>Loan Prediction</h1>
+    <form id="predict-form" method="post">
+        <label for="loan_amnt">Loan Amount:</label>
+        <input type="number" id="loan_amnt" name="loan_amnt" value="50000" required><br><br>
+
+        <label for="term">Term (months):</label>
+        <input type="number" id="term" name="term" value="12" required><br><br>
+
+        <label for="int_rate">Interest Rate:</label>
+        <input type="number" step="0.01" id="int_rate" name="int_rate" value="8" required><br><br>
+
+        <label for="installment">Installment:</label>
+        <input type="number" id="installment" name="installment" value="3000" required><br><br>
+
+        <label for="grade">Grade:</label>
+        <input type="text" id="grade" name="grade" value="A" required><br><br>
+
+        <label for="sub_grade">Sub-Grade:</label>
+        <input type="text" id="sub_grade" name="sub_grade" value="A1" required><br><br>
+
+        <label for="emp_title">Employment Title:</label>
+        <input type="text" id="emp_title" name="emp_title" value="Clerk" required><br><br>
+
+        <label for="emp_length">Employment Length:</label>
+        <input type="text" id="emp_length" name="emp_length" value="5" required><br><br>
+
+        <label for="home_ownership">Home Ownership:</label>
+        <input type="text" id="home_ownership" name="home_ownership" value="RENT" required><br><br>
+
+        <label for="annual_inc">Annual Income:</label>
+        <input type="number" step="0.01" id="annual_inc" name="annual_inc" value="500000" required><br><br>
+
+        <label for="verification_status">Verification Status:</label>
+        <input type="text" id="verification_status" name="verification_status" value="Not Verified" required><br><br>
+
+        <label for="purpose">Purpose:</label>
+        <input type="text" id="purpose" name="purpose" value="Loan Settlement" required><br><br>
+
+        <label for="dti">Debt-to-Income Ratio:</label>
+        <input type="number" step="0.01" id="dti" name="dti" value="26.24" required><br><br>
+
+        <!-- <label for="earliest_cr_line">Earliest Credit Line:</label>
+        <input type="date" id="earliest_cr_line" name="earliest_cr_line" required><br><br> -->
+
+        <label for="open_acc">Number of Open Accounts:</label>
+        <input type="number" id="open_acc" name="open_acc" value="10" required><br><br>
+
+        <label for="pub_rec">Number of Public Records:</label>
+        <input type="number" id="pub_rec" name="pub_rec" value="0" required><br><br>
+
+        <label for="revol_bal">Revolving Balance:</label>
+        <input type="number" id="revol_bal" name="revol_bal" value="36000" required><br><br>
+
+        <label for="revol_util">Revolving Utilization Rate:</label>
+        <input type="number" step="0.01" id="revol_util" name="revol_util" value="42" required><br><br>
+
+        <label for="total_acc">Total Number of Accounts:</label>
+        <input type="number" id="total_acc" name="total_acc" value="25" required><br><br>
+
+        <label for="initial_list_status">Initial List Status:</label>
+        <input type="text" id="initial_list_status" name="initial_list_status" value="w" required><br><br>
+
+        <label for="application_type">Application Type:</label>
+        <input type="text" id="application_type" name="application_type" value="INDIVIDUAL" required><br><br>
+
+        <label for="mort_acc">Number of Mortgage Accounts:</label>
+        <input type="number" id="mort_acc" name="mort_acc" value="0" required><br><br>
+
+        <label for="pub_rec_bankruptcies">Number of Public Record Bankruptcies:</label>
+        <input type="number" id="pub_rec_bankruptcies" name="pub_rec_bankruptcies" value="0.00" required><br><br>
+
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" value="NYC" required><br><br>
+
+        <button type="button" onclick="submitForm()">Predict</button>
+    </form>
+
+    <h2>Prediction Result:</h2>
+    <p id="result"></p>
+
+    <script>
+        function submitForm() {
+            const form = document.getElementById('predict-form');
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = [value];  // wrap value in an array
+            });
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                // .then(result => {
+                //     if (result == 0) {
+                //         result = "May Default"
+                //     } else {
+                //         result = "May not Default!"
+                //     }
+                //     document.getElementById('result').textContent = 'Prediction: ' + result;
+
+                // })
+                .then(result => {
+                    // Extract the prediction and probability from the result
+                    const prediction = result.predictions[0]; // Assuming single prediction
+                    const probability = result.probabilities[0]; // Assuming single probability array
+
+                    let outcomeMessage = '';
+                    if (prediction === 0) {
+                        outcomeMessage = "May Default";
+                    } else {
+                        outcomeMessage = "May not Default!";
+                    }
+
+                    // Construct the message with prediction and probability
+                    let resultMessage='';
+                    if(prediction ===0){
+                    const probabilityMessage = `Probability: ${probability[0].toFixed(2) * 100}%`; // Assuming binary classification and you want the probability of class 1
+                     resultMessage = `Prediction: ${outcomeMessage}. ${probabilityMessage}`;
+                    }
+                    else{
+                    const probabilityMessage = `Probability: ${probability[1].toFixed(2) * 100}%`; // Assuming binary classification and you want the probability of class 1
+                     resultMessage = `Prediction: ${outcomeMessage}. ${probabilityMessage}`;
+                    }
+
+                    // Update the result element with the message
+                    document.getElementById('result').textContent = resultMessage;
+                })
+
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</body>
+
+</html>

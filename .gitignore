@@ -1,3 +1,14 @@
  model_deployment/
 
  .gitattributes
+
+data/processed.csv
+
+.ipynb_checkpoints
+
+1_UP_Model_building_RFC.ipynb
+ANN.ipynb
+SMOTE-Copy1.ipynb
+SMOTE-Copy2.ipynb
+SMOTE.ipynb
+XGBoost.ipynb
